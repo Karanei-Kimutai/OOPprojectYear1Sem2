@@ -1,0 +1,50 @@
+--MariaDB sql
+-- Create the database
+CREATE DATABASE IF NOT EXISTS db_karanei_kimutai_183523;
+
+-- Use the database
+USE db_karanei_kimutai_183523;
+
+-- Create the student information table
+CREATE TABLE tbl_studentinfo (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id VARCHAR(20) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    course VARCHAR(50) NOT NULL,
+    units INT NOT NULL,
+    units_enrolled BOOLEAN NOT NULL,
+    unit_names VARCHAR(255) NOT NULL
+);
+
+-- Create the feedback table with foreign key relationship
+CREATE TABLE IF NOT EXISTS tbl_feedback (
+    feedback_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id VARCHAR(20) NOT NULL,
+    content TEXT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES tbl_studentinfo(student_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+-- Add indexes for better performance
+CREATE INDEX idx_course ON tbl_studentinfo(course);
+CREATE INDEX idx_student_feedback ON tbl_feedback(student_id);
+CREATE INDEX idx_timestamp ON tbl_feedback(timestamp);
+
+
+
+-- Create a view to show feedback with course information (optional - for easier querying)
+CREATE VIEW vw_feedback_with_course AS
+SELECT 
+    f.feedback_id,
+    f.student_id,
+    s.course,
+    f.content,
+    f.timestamp
+FROM 
+    tbl_feedback f
+    JOIN tbl_studentinfo s ON f.student_id = s.student_id
+ORDER BY 
+    f.timestamp DESC;
+
